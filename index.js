@@ -5,44 +5,50 @@
 var express = require("express");
 var app = express();
 
-// enable CORS (https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
-// so that your API is remotely testable by FCC
+// enable CORS
 var cors = require("cors");
-app.use(cors({ optionsSuccessStatus: 200 })); // some legacy browsers choke on 204
+app.use(cors({ optionsSuccessStatus: 200 }));
 
-// http://expressjs.com/en/starter/static-files.html
+// Serve static files
 app.use(express.static("public"));
 
-// http://expressjs.com/en/starter/basic-routing.html
+// Serve the main HTML file
 app.get("/", function (req, res) {
   res.sendFile(__dirname + "/views/index.html");
 });
 
+// Function to check if the date is invalid
 const isInvalidDate = (date) => date.toUTCString() === "Invalid Date";
 
-// your first API endpoint...
+// API endpoint for date parsing
 app.get("/api/:date", function (req, res) {
   let date = new Date(req.params.date);
 
+  // Check if the date is invalid
   if (isInvalidDate(date)) {
+    // Try to parse the date as a Unix timestamp
     date = new Date(+req.params.date);
   }
 
+  // Check again if the date is still invalid
   if (isInvalidDate(date)) {
     res.json({ error: "Invalid Date" });
     return;
   }
 
+  // Return the valid date in JSON format
   res.json({
     unix: date.getTime(),
     utc: date.toUTCString(),
   });
 });
 
+// API endpoint for current date
 app.get("/api", (req, res) => {
+  const currentDate = new Date();
   res.json({
-    unix: new Date().getTime(),
-    utx: new Date().toUTCString(),
+    unix: currentDate.getTime(),
+    utc: currentDate.toUTCString(),
   });
 });
 
